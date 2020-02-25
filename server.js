@@ -1,27 +1,28 @@
-const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
+var express = require('express');
+var app = express();
 
-// make all the files in 'public' available
-// https://expressjs.com/en/starter/static-files.html
-app.use((req, res, next) => {
-  console.log(req.method + " " + req.path + " - " + req.ip);
-  next();
-});
+var cors = require('cors');
+app.use(cors({optionSuccessStatus: 200})); 
 app.use(express.static("public"));
-app.use(bodyParser.urlencoded({extended: false}));
 
-// https://expressjs.com/en/starter/basic-routing.html
-app.get("/", (request, response) => {
-  response.sendFile(__dirname + "/views/index.html");
+// http://expressjs.com/en/starter/basic-routing.html
+app.get("/", function (req, res) {
+  res.sendFile(__dirname + '/views/index.html');
 });
-app.get("/api/timestamp", (req, res, next) => {
+
+
+// your first API endpoint... 
+app.get("/api/hello", function (req, res) {
+  res.json({greeting: 'hello API'});
+});
+
+
+app.get("/api/timestamp", (req, res) => {
   let currentDate = new Date()
-  res.send({"unix": currentDate.getTime(), utc: currentDate.toUTCString()})
-  next()
+  res.json({"unix": currentDate.getTime(), utc: currentDate.toUTCString()})
 })
 
-app.get("/api/timestamp/:date_string?", (req, res, next) => {
+app.get("/api/timestamp/:date_string?", (req, res) => {
   let reqDate = req.params.date_string;
   let resDate = new Date()
   let response = {}
@@ -34,11 +35,11 @@ app.get("/api/timestamp/:date_string?", (req, res, next) => {
     response = {"unix": resDate.getTime(), utc: resDate.toUTCString()};
   }
   console.log(response)
-  res.send(response); 
-  next();
+  res.json(response); 
+  // next();
 })
 
 // listen for requests :)
-const listener = app.listen(process.env.PORT, () => {
-  console.log("Your app is listening on port " + listener.address().port);
+var listener = app.listen(process.env.PORT, function () {
+  console.log('Your app is listening on port ' + listener.address().port);
 });
